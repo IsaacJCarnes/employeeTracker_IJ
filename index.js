@@ -1,17 +1,20 @@
 const mysql = require("mysql2");
 const inquirer = require("inquirer");
-const console_table = require("console.table");
+const consoleTable = require("console.table");
+const dotenv = require("dotenv");
+const Connection = require("mysql2/typings/mysql/lib/Connection");
 
 const PORT = process.env.PORT || 3001;
+const { parsed : parsedEnv} = dotenv.config();
 
 const db = mysql.createConnection(
   {
     host: "localhost",
-    user: "root",
-    password: "rootpass",
-    database: "company_db",
+    user: parsedEnv.DB_USER,
+    password: parsedEnv.DB_PASSWORD,
+    database: parsedEnv.DB_NAME,
   },
-  console.log(`Connected to the track database.`)
+  console.log("Connected to " + parsedEnv.DB_NAME +".")
 );
 
 const mainMenuChoices = ["View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"];
@@ -35,5 +38,44 @@ function mainMenu() {
         ],
       },
     ])
-    .then((initialChoice) => {});
+    .then((initialChoice) => {
+      switch(initialChoice){
+        case mainMenuChoices[0]:
+          viewEmployees();
+          break;
+        case mainMenuChoices[1]:
+          break;
+        case mainMenuChoices[2]:
+          break;
+        case mainMenuChoices[3]:
+          viewRoles();
+          break;
+        case mainMenuChoices[4]:
+          break;
+        case mainMenuChoices[5]:
+          viewDepartments();
+          break;
+        case mainMenuChoices[6]:
+          break;
+        case mainMenuChoices[7]:
+          break;
+      };
+    });
 }
+
+
+function viewEmployees(){
+  Connection.createQuery("SELECT * FROM ")
+
+}
+
+function viewRoles(){
+
+}
+
+function viewDepartments(){
+
+}
+
+//Starts the inquirer loop
+mainMenu();
