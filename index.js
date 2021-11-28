@@ -130,7 +130,16 @@ function addRole(){
 }
 
 function viewDepartments(){
-
+  db.query("SELECT department.id, department.name FROM department",
+    function(err, results) {
+      if (err) {
+        console.log(err);
+      }
+      console.table(results);
+      console.log(results);
+      mainMenu();
+    }
+  );
 }
 
 function addDepartment(){
@@ -142,9 +151,13 @@ function addDepartment(){
         name:"dep_name",
       }
     ]).then((dep_data) => {
-      db.query("INSERT INTO department VALUES ("+dep_data.dep_name+")");
-      console.log("Added " + dep_data.dep_name + " to departments.");
-      mainMenu();
+      db.query("INSERT INTO department SET name = ?", dep_data.dep_name, (err, results) => {
+        if(err){
+          console.log(err);
+        }
+        console.log("Added " + dep_data.dep_name + " to departments.");
+        mainMenu();
+      });
     });
 }
 
