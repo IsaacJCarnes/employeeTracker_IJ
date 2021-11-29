@@ -54,7 +54,7 @@ function mainMenu() {
           addEmployee();
           break;
         case mainMenuChoices[2]:
-          //updateEmployeeRole();
+          updateEmpRole();
           break;
         case mainMenuChoices[3]:
           viewRoles();
@@ -69,14 +69,15 @@ function mainMenu() {
           addDepartment();
           break;
         case mainMenuChoices[7]:
-          break;
+          console.log("Exiting application, goodbye.");
+          process.exit();
       }
     });
 }
 
 function viewEmployees() { //Queries all employees and logs them in table //WORK TODO
   db.query(
-    "SELECT employee.id, employee.first_name, employee.last_name FROM employee",
+    "SELECT employee.id, employee.first_name, employee.last_name, role.title , department.name AS department, role.salary FROM employee INNER JOIN role ON employee.role_id=role.id INNER JOIN department ON role.department_id=department.id",
     function (err, results) {
       if (err) {
         console.log(err);
@@ -174,6 +175,60 @@ function addEmployee() { //Asks for relevant data and then adds new employee to 
           });
       }
     );
+  });
+}
+
+function updateEmpRole(){
+  let currentEmployees = "";
+  let currentRoles = "";
+  db.query("SELECT first_name, last_name, id FROM employee;", function (err, result) {
+    if (err) {
+    }
+    currentEmployees = result.map((emp) => ({
+      name: emp.first_name + " " + emp.last_name,
+      value: {
+        id: emp.id,
+        name: emp.first_name + " " + emp.last_name,
+      },
+    }));
+    db.query(
+      "SELECT title, id FROM role;",
+      function (err, result) {
+        if (err) {
+        }
+        console.log(result);
+        currentRoles = result.map((role) => ({
+          name: role.title,
+          value: { id: role.id, name: role.title },
+        }));
+      
+
+      inquirer
+      .prompt([
+      {
+        type: "list",
+        message: "Which employee's role do you want to update?",
+        name: "emp",
+        choices: currentEmployees,
+      },
+      {
+        type: "list",
+        message: "What is the employee's new role?",
+        name: "emp_role",
+        choices: currentRoles,
+      },
+      ]).then((empData) => {
+        let empId = empData.emp.id;
+        let empRole = empData.emp_role.id;
+        db.query("UPDATE employee SET role_id = ? WHERE id = ?;", [empId, empRole], function(err, result){
+          if(err){
+            console.log(err);
+          }
+          console.log("Updated " + empData.emp.first_name + "'s role.");
+          mainMenu();
+        });
+      });
+    });
   });
 }
 
